@@ -7,4 +7,9 @@
         <RootNamespace>ModelLibrary</RootNamespace>
     </PropertyGroup>
 
+    <ItemGroup>
+        <PackageReference Include="FluentValidation" Version="11.11.0"/>
+        <PackageReference Include="Microsoft.Extensions.Identity.Stores" Version="8.0.14"/>
+    </ItemGroup>
+
 </Project>
