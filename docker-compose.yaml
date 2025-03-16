@@ -1,0 +1,6 @@
+﻿services:
+  employes:
+    image: employes
+    build:
+      context: .
+      dockerfile: Employes/Dockerfile
