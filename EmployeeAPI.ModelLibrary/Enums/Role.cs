@@ -18,5 +18,10 @@ public enum Role
     /// <summary>
     /// Represents a director, who has higher-level administrative permissions.
     /// </summary>
-    Director
+    Director,
+    
+    /// <summary>
+    /// Represents a Admin, application manager.
+    /// </summary>
+    Admin
 }

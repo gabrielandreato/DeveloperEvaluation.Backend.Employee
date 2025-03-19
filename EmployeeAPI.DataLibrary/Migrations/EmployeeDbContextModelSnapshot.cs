@@ -4,19 +4,16 @@ using Employes.DataLibrary.Context;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
-using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
 
 namespace Employes.DataLibrary.Migrations
 {
-    [DbContext(typeof(EmployesDbContext))]
-    [Migration("20250316193723_AddPhoneList")]
-    partial class AddPhoneList
+    [DbContext(typeof(EmployeeDbContext))]
+    partial class EmployeeDbContextModelSnapshot : ModelSnapshot
     {
-        /// <inheritdoc />
-        protected override void BuildTargetModel(ModelBuilder modelBuilder)
+        protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -27,14 +24,11 @@ namespace Employes.DataLibrary.Migrations
 
             modelBuilder.Entity("ModelLibrary.Entities.User", b =>
                 {
-                    b.Property<string>("Id")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<int>("AccessFailedCount")
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("longtext");
+                    MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime(6)");
@@ -48,62 +42,25 @@ namespace Employes.DataLibrary.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
-                    b.Property<bool>("EmailConfirmed")
-                        .HasColumnType("tinyint(1)");
-
                     b.Property<string>("FirstName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
+
+                    b.Property<string>("HashPassword")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<string>("LastName")
                         .IsRequired()
                         .HasMaxLength(50)
                         .HasColumnType("varchar(50)");
 
-                    b.Property<bool>("LockoutEnabled")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<DateTimeOffset?>("LockoutEnd")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("ManagerId")
-                        .HasColumnType("varchar(255)");
-
-                    b.Property<string>("NormalizedEmail")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("NormalizedUserName")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("Password")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("varchar(100)");
-
-                    b.Property<string>("PasswordHash")
-                        .HasColumnType("longtext");
-
-                    b.Property<string>("PhoneNumber")
-                        .IsRequired()
-                        .HasMaxLength(20)
-                        .HasColumnType("varchar(20)");
-
-                    b.Property<bool>("PhoneNumberConfirmed")
-                        .HasColumnType("tinyint(1)");
-
-                    b.Property<string>("RePassword")
-                        .IsRequired()
-                        .HasColumnType("longtext");
+                    b.Property<int?>("ManagerId")
+                        .HasColumnType("int");
 
                     b.Property<int>("Role")
                         .HasColumnType("int");
-
-                    b.Property<string>("SecurityStamp")
-                        .HasColumnType("longtext");
-
-                    b.Property<bool>("TwoFactorEnabled")
-                        .HasColumnType("tinyint(1)");
 
                     b.Property<string>("UserName")
                         .IsRequired()
@@ -116,7 +73,21 @@ namespace Employes.DataLibrary.Migrations
 
                     b.HasIndex("ManagerId");
 
-                    b.ToTable("Users");
+                    b.ToTable("Users", (string)null);
+
+                    b.HasData(
+                        new
+                        {
+                            Id = -1,
+                            DateOfBirth = new DateTime(2025, 3, 19, 14, 51, 33, 776, DateTimeKind.Local).AddTicks(6916),
+                            DocumentNumber = "123",
+                            Email = "admin@sys.com",
+                            FirstName = "Admin",
+                            HashPassword = "21-23-2F-29-7A-57-A5-A7-43-89-4A-0E-4A-80-1F-C3",
+                            LastName = "User",
+                            Role = 4,
+                            UserName = "admin"
+                        });
                 });
 
             modelBuilder.Entity("PhoneNumber", b =>
@@ -132,9 +103,8 @@ namespace Employes.DataLibrary.Migrations
                         .HasMaxLength(20)
                         .HasColumnType("varchar(20)");
 
-                    b.Property<string>("UserId")
-                        .IsRequired()
-                        .HasColumnType("varchar(255)");
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 

@@ -1,6 +1,7 @@
 ﻿using Bogus;
 using ModelLibrary.Entities;
 using System.Collections.Generic;
+using ModelLibrary.Enums;
 
 namespace EmployesAPI.Test.Entities.User.TestData
 {
@@ -30,9 +31,11 @@ namespace EmployesAPI.Test.Entities.User.TestData
             .RuleFor(u => u.Email, (f, u) => f.Internet.Email(u.FirstName, u.LastName))
             .RuleFor(u => u.Password, f => "StrongPass1!")
             .RuleFor(u => u.RePassword, f => "StrongPass1!") 
+            .RuleFor(u => u.HashPassword, f => Guid.NewGuid().ToString()) 
+            .RuleFor(u => u.Role, f => f.PickRandom(Role.Employee, Role.Leader, Role.Director)) 
             .RuleFor(u => u.DocumentNumber, f => f.Random.String2(10, "0123456789"))
             .RuleFor(u => u.PhoneNumbers, f => GeneratePhoneNumbers())
-            .RuleFor(u => u.DateOfBirth, f => f.Date.Past(30, DateTime.Today.AddYears(-18)));
+            .RuleFor(u => u.DateOfBirth, f => f.Date.Past(30, DateTime.Today.AddYears(-19)));
 
         /// <summary>
         /// Generates a list of unique phone numbers for a user.

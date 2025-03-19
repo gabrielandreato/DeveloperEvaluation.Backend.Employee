@@ -37,6 +37,9 @@ public class UserValidator : AbstractValidator<User>
 
         RuleFor(user => user.RePassword)
             .Equal(user => user.Password).WithMessage("Password confirmation does not match the password.");
+        
+        RuleFor(user => user.HashPassword)
+            .NotEmpty().WithMessage("Hash password is required.");
 
         RuleFor(user => user.DocumentNumber)
             .NotEmpty().WithMessage("Document number is required.")

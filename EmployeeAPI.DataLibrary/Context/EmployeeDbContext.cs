@@ -1,5 +1,8 @@
 ﻿using System.Reflection;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using ModelLibrary.Entities;
 
 namespace Employes.DataLibrary.Context;
 
@@ -7,14 +10,12 @@ namespace Employes.DataLibrary.Context;
 ///     Represents the database context for the Employes domain, responsible for managing
 ///     data access and providing configurations for entities in a SQL database.
 /// </summary>
-public class EmployesDbContext : DataContext
+public class EmployeeDbContext : DbContext, IEmployeeDataContext
 {
-    /// <summary>
-    ///     Initializes a new instance of the <see cref="EmployesDbContext" /> class.
-    /// </summary>
-    /// <param name="options">The options to be used by a <see cref="DbContext" />.</param>
-    public EmployesDbContext(DbContextOptions<EmployesDbContext> options) : base(options)
+
+    public EmployeeDbContext(DbContextOptions options) : base(options)
     {
+
     }
 
     /// <summary>
@@ -26,5 +27,19 @@ public class EmployesDbContext : DataContext
     {
         modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetExecutingAssembly());
         base.OnModelCreating(modelBuilder);
+    }
+    
+    /// <summary>
+    ///     Gets or sets the <see cref="DbSet{User}" /> representing the Users table.
+    /// </summary>
+    public DbSet<User> Users { get; set; }
+
+    /// <summary>
+    ///     Checks if the current database is an in-memory database.
+    /// </summary>
+    /// <returns>true if the database is in-memory; otherwise, false.</returns>
+    public virtual bool IsInMemory()
+    {
+        return Database.IsInMemory();
     }
 }
