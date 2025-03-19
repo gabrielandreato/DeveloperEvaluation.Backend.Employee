@@ -1,6 +1,7 @@
-﻿using FluentValidation;
+﻿using Employes.Feature.User.Requests;
+using FluentValidation;
 
-namespace Employes.Feature.User.Requests;
+namespace Employes.Feature.User.Validator;
 
 /// <summary>
 ///     Provides validation rules for the CreateUserRequest using FluentValidation.
@@ -13,7 +14,7 @@ public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
     /// </summary>
     public CreateUserRequestValidator()
     {
-        RuleFor(request => request.Username)
+        RuleFor(request => request.UserName)
             .NotEmpty().WithMessage("Username is required.");
         
         RuleFor(request => request.FirstName)
@@ -41,10 +42,10 @@ public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
             .NotEmpty().WithMessage("Document number is required.")
             .MaximumLength(20).WithMessage("Document number must be at most 20 characters long.");
 
-        RuleFor(request => request.Phone)
+        RuleFor(request => request.PhoneNumbers)
             .NotEmpty().WithMessage("At least one phone number is required.");
 
-        RuleFor(request => request.DateBirth)
+        RuleFor(request => request.DateOfBirth)
             .NotEmpty().WithMessage("Date of birth is required.")
             .Must(BeAtLeast18YearsOld).WithMessage("The user must be at least 18 years old.");
         

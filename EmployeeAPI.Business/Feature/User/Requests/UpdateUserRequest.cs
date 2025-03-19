@@ -3,9 +3,9 @@
 namespace Employes.Feature.User.Requests;
 
 /// <summary>
-///     Represents the data required to create a new user.
+///     Represents the data required to update a user.
 /// </summary>
-public class CreateUserRequest
+public class UpdateUserRequest
 {
     /// <summary>
     ///     Gets or sets the username for the new user.

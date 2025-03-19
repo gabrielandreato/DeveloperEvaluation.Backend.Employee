@@ -22,29 +22,25 @@ public class TokenService : ITokenService
         _configuration = configuration;
     }
 
-    /// <summary>
-    ///     Generates a JWT for a specified user.
-    /// </summary>
-    /// <param name="user">The user entity for whom the token is being generated.</param>
-    /// <returns>A string representation of the generated JWT.</returns>
-    /// <exception cref="Exception">Thrown when the symmetric security key is not found in the configuration.</exception>
+    /// <inheritdoc />
     public string GenerateToken(ModelLibrary.Entities.User user)
     {
         var claims = new[]
         {
             new Claim("username", user.UserName),
-            new Claim("id", user.Id),
-            new Claim("loginTimeStamp", DateTime.UtcNow.ToString())
+            new Claim("id", user.Id.ToString()),
+            new Claim("loginTimeStamp", DateTime.UtcNow.ToString()),
+            new Claim(ClaimTypes.Role, user.Role.ToString())
         };
 
-        var chave = new SymmetricSecurityKey(
+        var key = new SymmetricSecurityKey(
             Encoding.UTF8.GetBytes(_configuration["SymmetricSecurityKey"]
                                    ?? throw new Exception("SymmetricSecurityKey not found.")));
-        var signingCredentials = new SigningCredentials(chave, SecurityAlgorithms.HmacSha256);
+        var signingCredentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
         var token = new JwtSecurityToken
         (
-            expires: DateTime.Now.AddMinutes(10),
+            expires: DateTime.Now.AddMinutes(30),
             claims: claims,
             signingCredentials: signingCredentials
         );

@@ -6,6 +6,9 @@ using ModelLibrary.Entities;
 /// </summary>
 public class PhoneNumber
 {
+    /// <summary>
+    /// Unique identifier
+    /// </summary>
     public int Id { get; set; }
 
     /// <summary>
@@ -18,7 +21,10 @@ public class PhoneNumber
     /// <summary>
     /// Reference to the associated user.
     /// </summary>
-    public string UserId { get; set; }
+    public int UserId { get; set; }
 
+    /// <summary>
+    /// User related with the phone number
+    /// </summary>
     public User User { get; set; }
 }
