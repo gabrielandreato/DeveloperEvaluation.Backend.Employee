@@ -25,6 +25,15 @@ builder.Services.AddAuthentication(x =>
     };
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowAllOrigins",
+        b => b
+            .AllowAnyOrigin()
+            .AllowAnyMethod()
+            .AllowAnyHeader());
+});
+
 
 builder.Services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 builder.Services.ConfigureDataLibrary(builder.Configuration);
@@ -44,7 +53,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1"));
 }
 
+app.UseCors("AllowAllOrigins");
+
 app.UseHttpsRedirection();
+app.UseRouting();
+
 app.UseAuthentication(); 
 app.UseAuthorization();
 
