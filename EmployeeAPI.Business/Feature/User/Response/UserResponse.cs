@@ -50,7 +50,7 @@ public class UserResponse
     /// <summary>
     /// Gets or sets the manager entity, representing the user's manager in the organization.
     /// </summary>
-    public ModelLibrary.Entities.User? Manager { get; set; }
+    public UserResponse? Manager { get; set; }
 
     /// <summary>
     /// Gets or sets the date of birth of the user.
