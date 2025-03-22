@@ -17,6 +17,7 @@ public class UserService : IUserService
     private readonly IMapper _mapper;
     private readonly ITokenService _tokenService;
     private readonly IUserRepository _userRepository;
+    private readonly ILogger<UserService> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="UserService" /> class.
@@ -24,29 +25,36 @@ public class UserService : IUserService
     /// <param name="mapper">The object mapper for entity transformations.</param>
     /// <param name="tokenService">The token service for generating authentication tokens.</param>
     /// <param name="userRepository">The repository for accessing user data.</param>
+    /// <param name="logger">The service to generate application logs</param>
     public UserService(
         IMapper mapper,
         ITokenService tokenService,
-        IUserRepository userRepository)
+        IUserRepository userRepository,
+        ILogger<UserService> logger)
     {
         _mapper = mapper;
         _tokenService = tokenService;
         _userRepository = userRepository;
+        _logger = logger;
     }
 
     /// <inheritdoc />
     public async Task<ModelLibrary.Entities.User> CreateAsync(CreateUserRequest createUserRequest,
         ClaimsPrincipal userClaims)
     {
+        _logger.LogInformation("Initiating user creation for UserName: {UserName}", createUserRequest.UserName);
+
         var user = _mapper.Map<CreateUserRequest, ModelLibrary.Entities.User>(createUserRequest);
 
         ValidateUserRole(userClaims, user.Role);
-        
+
         await ValidateUser(user);
-        
+
         user.SetEncryptedPassword();
 
         var result = await _userRepository.CreateAsync(user);
+
+        _logger.LogInformation("User created successfully with ID: {UserId}", result.Id);
 
         return result;
     }
@@ -67,19 +75,29 @@ public class UserService : IUserService
     /// </remarks>
     private async Task ValidateUser(ModelLibrary.Entities.User user)
     {
+        _logger.LogInformation(
+            "Validating user for duplicates with UserName: {UserName} and DocumentNumber: {DocumentNumber}",
+            user.UserName, user.DocumentNumber);
+
         var userByDocument = await _userRepository.GetListAsync(new UserFilter()
         {
             DocumentNumber = user.DocumentNumber,
         });
-        if (userByDocument.Items.Count != 0) 
+        if (userByDocument.Items.Count != 0)
+        {
+            _logger.LogWarning("Duplicate document number found for: {DocumentNumber}", user.DocumentNumber);
             throw new ApplicationException("Employee with this document number already exists");
-        
+        }
+
         var userByUserName = await _userRepository.GetListAsync(new UserFilter()
         {
             UserName = user.UserName,
         });
-        if (userByUserName.Items.Count != 0) 
+        if (userByUserName.Items.Count != 0)
+        {
+            _logger.LogWarning("Duplicate userName found for: {UserName}", user.UserName);
             throw new ApplicationException("Employee with this userName already exists");
+        }
     }
 
     /// <summary>
@@ -96,73 +114,114 @@ public class UserService : IUserService
     private void ValidateUserRole(ClaimsPrincipal userClaims, Role newUserRole)
     {
         if (userClaims == null)
+        {
+            _logger.LogError("User claims are not available.");
             throw new UnauthorizedAccessException("User claims are not available.");
+        }
 
         var currentUserRoleClaim = userClaims.FindFirst(ClaimTypes.Role)?.Value;
 
         if (string.IsNullOrWhiteSpace(currentUserRoleClaim))
+        {
+            _logger.LogError("Current user role is missing.");
             throw new UnauthorizedAccessException("Current user role is missing.");
+        }
 
         if (!Enum.TryParse(currentUserRoleClaim, out Role currentUserRole))
+        {
+            _logger.LogError("Invalid role in the current user's claims.");
             throw new UnauthorizedAccessException("Invalid role in the current user's claims.");
+        }
 
         if (newUserRole > currentUserRole)
+        {
+            _logger.LogError("Insufficient permissions to create a user with a higher role.");
             throw new InvalidOperationException("You do not have permission to create a user with a higher role.");
+        }
     }
 
     /// <inheritdoc />
     public async Task<PagedList<ModelLibrary.Entities.User>> GetListAsync(UserFilter filter)
     {
+        _logger.LogInformation("Retrieving user list with filter: {filter}", filter);
         var users = await _userRepository.GetListAsync(filter);
-        
+        _logger.LogInformation("Retrieved {TotalCount} users", users.TotalCount);
         return users;
     }
 
     /// <inheritdoc />
     public async Task<ModelLibrary.Entities.User> UpdateAsync(int id, UpdateUserRequest updateUserRequest)
     {
+        _logger.LogInformation("Updating user with ID: {UserId}", id);
+
         var first = await _userRepository.GetByIdAsync(id);
-        
-        if(first is null) throw new ApplicationException("User not found.");
-        
+
+        if (first is null)
+        {
+            _logger.LogError("User not found with ID: {UserId}", id);
+            throw new ApplicationException("User not found.");
+        }
+
         _mapper.Map(updateUserRequest, first);
         first.SetEncryptedPassword();
         await _userRepository.SaveChangesAsync();
-        
+
+        _logger.LogInformation("User updated successfully with ID: {UserId}", id);
+
         return first;
     }
 
     /// <inheritdoc />
     public async Task<ModelLibrary.Entities.User> RemoveAsync(int id)
     {
-        return await _userRepository.RemoveAsync(id);
+        _logger.LogInformation("Removing user with ID: {UserId}", id);
+        var user = await _userRepository.RemoveAsync(id);
+        _logger.LogInformation("User removed successfully with ID: {UserId}", id);
+        return user;
     }
 
     /// <inheritdoc />
     public async Task<ModelLibrary.Entities.User?> GetByIdAsync(int id)
     {
-        return await _userRepository.GetByIdAsync(id);
+        _logger.LogInformation("Retrieving user by ID: {UserId}", id);
+        var user = await _userRepository.GetByIdAsync(id);
+        if (user == null)
+        {
+            _logger.LogWarning("User not found with ID: {UserId}", id);
+        }
+        else
+        {
+            _logger.LogInformation("User retrieved successfully with ID: {UserId}", id);
+        }
+
+        return user;
     }
 
     /// <inheritdoc />
     public async Task<string> Login(LoginUserRequest request)
     {
+        _logger.LogInformation("Processing login for UserName: {UserName}", request.UserName);
+
         try
         {
             var user = await _userRepository.GetByUserNameAsync(request.UserName);
-            
-            if (user is null) throw new ApplicationException("User not found."); 
-            
+
+            if (user is null)
+            {
+                _logger.LogError("User not found with UserName: {UserName}", request.UserName);
+                throw new ApplicationException("User not found.");
+            }
+
             user.ValidatePassword(request.Password);
-            
+
             var token = _tokenService.GenerateToken(user);
-            
+            _logger.LogInformation("Token generated successfully for UserName: {UserName}", request.UserName);
+
             return token;
         } catch (Exception e)
         {
+            _logger.LogError(e, "Authentication failed for UserName: {UserName}", request.UserName);
             throw new Exception("Authentication failed", e.InnerException);
         }
     }
-
-   
 }

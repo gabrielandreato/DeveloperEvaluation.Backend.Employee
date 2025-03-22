@@ -63,7 +63,7 @@ Ensure your database is set up accordingly before starting the application.
 
 1. Apply migrations to set up the database:
    ```bash
-   dotnet ef database update
+   dotnet ef database update --project .\EmployeeAPI.DataLibrary\EmployeeAPI.DataLibrary.csproj  --startup-project .\EmployeeAPI.Business\ --context EmployeeDbContext
    ```
 
 2. Start the application:

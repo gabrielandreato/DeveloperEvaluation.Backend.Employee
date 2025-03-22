@@ -1,14 +1,10 @@
 using System.Text;
 using Employes.Configuration;
 using Employes.DataLibrary;
-using Employes.DataLibrary.Context;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
-
 var builder = WebApplication.CreateBuilder(args);
-
 
 Task.Delay(10 * 1000).Wait();
 
@@ -60,7 +56,6 @@ app.UseSwaggerUI(c => c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1")
 
 app.UseCors("AllowAllOrigins");
 
-// app.UseHttpsRedirection();
 
 app.UseAuthentication(); 
 app.UseAuthorization();

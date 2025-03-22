@@ -11,6 +11,7 @@ using Employes.Feature.User.Services;
 using EmployesAPI.Test.Entities.User.TestData;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using ModelLibrary.Common;
 using ModelLibrary.Entities;
 using ModelLibrary.Enums;
@@ -32,9 +33,10 @@ namespace EmployesAPI.Test.Controllers
             var mapConfig = new MapperConfiguration(cfg => cfg.AddProfile<UserProfile>());
             _mapper = mapConfig.CreateMapper();
             var repository = new UserRepository(_dbContext);
-            var service = new UserService(_mapper,
-                tokenService.Object, repository);
-            _controller = new UserController(service, _mapper);
+            var loggerService = new Mock<ILogger<UserService>>();
+            var service = new UserService(_mapper, tokenService.Object, repository, loggerService.Object);
+            var logger = new Mock<ILogger<UserController>>();
+            _controller = new UserController(service, _mapper, logger.Object);
         }
 
 
@@ -52,7 +54,6 @@ namespace EmployesAPI.Test.Controllers
                 DocumentNumber = user.DocumentNumber,
                 ManagerId = user.ManagerId,
                 Role = user.Role,
-
             };
 
 
