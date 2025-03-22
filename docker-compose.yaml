@@ -1,6 +1,30 @@
-﻿services:
+﻿version: '3.8'
+services:
   employes:
-    image: employes
+    container_name: employee-api
+    image: employee
     build:
       context: .
-      dockerfile: Employes/Dockerfile
+      dockerfile: ./Dockerfile
+    depends_on:
+      - mysql
+    ports:
+      - "5000:8080"
+    networks:
+      employee-network:
+    
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_DATABASE: 'employee'
+      MYSQL_ROOT_PASSWORD: 'root'
+    volumes:
+      - ./data/mysql:/var/lib/mysql
+    ports:
+      - "3307:3306"
+    networks:
+      employee-network:
+        
+networks:
+  employee-network:
+    driver: bridge
