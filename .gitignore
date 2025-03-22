@@ -13,12 +13,14 @@ riderModule.iml
 
 # User-specific files
 *.suo
-*.user
+*.user  
 *.userosscache
 *.sln.docstates
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
+
+/data
 
 # Build results
 [Dd]ebug/
