@@ -28,6 +28,15 @@ To configure the database for the application, you'll need to specify the connec
 }
 ```
 
+if you will run this application in docker, implement configurations bellow:
+```json
+{
+  "ConnectionStrings": {
+    "DefaultConnection": "server=mysql;database=employee;user=root;password=root"
+  }
+}
+```
+
 Ensure your database is set up accordingly before starting the application.
 
 ## Build and Deployment
@@ -62,7 +71,20 @@ Ensure your database is set up accordingly before starting the application.
    dotnet run
    ```
 
+## Running with Docker
+
+### Prerequisites
+- Docker Desktop
+
+This approach is only for testing porpouse, to production we advise you to implement secrets and other security rules. 
+
+1. Building and executing containers;
+    ```bash
+     docker compose up --build -d
+   ```
+
 The application should now be running at `http://localhost:5000`.
+
 
 ## Testing
 
