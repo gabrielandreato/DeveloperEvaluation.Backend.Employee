@@ -42,11 +42,44 @@ public class UserService : IUserService
 
         ValidateUserRole(userClaims, user.Role);
         
+        await ValidateUser(user);
+        
         user.SetEncryptedPassword();
 
         var result = await _userRepository.CreateAsync(user);
 
         return result;
+    }
+
+    /// <summary>
+    /// Validates a User entity by checking for duplicate Document Numbers and Usernames in the repository.
+    /// </summary>
+    /// <param name="user">The User entity to validate.</param>
+    /// <exception cref="ApplicationException">
+    /// Thrown when a User with the same Document Number or Username already exists in the repository.
+    /// </exception>
+    /// <remarks>
+    /// This method performs two validations:
+    /// 1. Checks if there is any existing user in the repository with the same Document Number as the provided user. 
+    ///    If found, throws an ApplicationException indicating the duplication.
+    /// 2. Checks if there is any existing user in the repository with the same Username as the provided user. 
+    ///    If found, throws an ApplicationException indicating the duplication.
+    /// </remarks>
+    private async Task ValidateUser(ModelLibrary.Entities.User user)
+    {
+        var userByDocument = await _userRepository.GetListAsync(new UserFilter()
+        {
+            DocumentNumber = user.DocumentNumber,
+        });
+        if (userByDocument.Items.Count != 0) 
+            throw new ApplicationException("Employee with this document number already exists");
+        
+        var userByUserName = await _userRepository.GetListAsync(new UserFilter()
+        {
+            UserName = user.UserName,
+        });
+        if (userByUserName.Items.Count != 0) 
+            throw new ApplicationException("Employee with this userName already exists");
     }
 
     /// <summary>
@@ -106,7 +139,7 @@ public class UserService : IUserService
     }
 
     /// <inheritdoc />
-    public async Task<ModelLibrary.Entities.User> GetByIdAsync(int id)
+    public async Task<ModelLibrary.Entities.User?> GetByIdAsync(int id)
     {
         return await _userRepository.GetByIdAsync(id);
     }

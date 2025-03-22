@@ -81,5 +81,5 @@ public interface IUserService
     /// <returns>
     /// A task that represents the asynchronous operation, containing the retrieved <see cref="ModelLibrary.Entities.User"/> object, or null if not found.
     /// </returns>
-    Task<ModelLibrary.Entities.User> GetByIdAsync(int id);
+    Task<ModelLibrary.Entities.User?> GetByIdAsync(int id);
 }

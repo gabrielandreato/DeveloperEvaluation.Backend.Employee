@@ -1,4 +1,5 @@
-﻿using EmployesAPI.Test.Entities.User.TestData;
+﻿using Employes.Feature.User.Requests;
+using EmployesAPI.Test.Entities.User.TestData;
 using FluentValidation.TestHelper;
 using ModelLibrary.Validation;
 
@@ -101,5 +102,107 @@ public class UserTests
 
         // Assert
         result.ShouldNotHaveAnyValidationErrors();
+    }
+
+    /// <summary>
+    /// Tests that a user with a null first name should produce a validation error.
+    /// </summary>
+    [Fact]
+    public void Should_Have_Error_When_FirstName_Is_Null()
+    {
+        // Arrange
+        var user = UserTestData.GenerateValidUser();
+        user.FirstName = null;
+
+        // Act
+        var result = _validator.TestValidate(user);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(u => u.FirstName);
+    }
+
+    /// <summary>
+    /// Tests that a user with a null last name should produce a validation error.
+    /// </summary>
+    [Fact]
+    public void Should_Have_Error_When_LastName_Is_Null()
+    {
+        // Arrange
+        var user = UserTestData.GenerateValidUser();
+        user.LastName = null;
+
+        // Act
+        var result = _validator.TestValidate(user);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(u => u.LastName);
+    }
+
+    /// <summary>
+    /// Tests that a user with no document number should produce a validation error.
+    /// </summary>
+    [Fact]
+    public void Should_Have_Error_When_DocumentNumber_Is_Null()
+    {
+        // Arrange
+        var user = UserTestData.GenerateValidUser();
+        user.DocumentNumber = null;
+
+        // Act
+        var result = _validator.TestValidate(user);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(u => u.DocumentNumber);
+    }
+
+    /// <summary>
+    /// Tests that a user with a document number exceeding 20 characters should produce a validation error.
+    /// </summary>
+    [Fact]
+    public void Should_Have_Error_When_DocumentNumber_Exceeds_Length()
+    {
+        // Arrange
+        var user = UserTestData.GenerateValidUser();
+        user.DocumentNumber = new string('1', 21); // 21 characters
+
+        // Act
+        var result = _validator.TestValidate(user);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(u => u.DocumentNumber);
+    }
+
+    /// <summary>
+    /// Tests that a user with phone numbers list empty should produce a validation error.
+    /// </summary>
+    [Fact]
+    public void Should_Have_Error_When_PhoneNumbers_Are_Empty()
+    {
+        // Arrange
+        var user = UserTestData.GenerateValidUser();
+        user.PhoneNumbers = new List<PhoneNumber>();
+
+        // Act
+        var result = _validator.TestValidate(user);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(u => u.PhoneNumbers);
+    }
+
+    /// <summary>
+    /// Tests that a user younger than 18 should produce a validation error.
+    /// </summary>
+    [Fact]
+    public void Should_Have_Error_When_User_Is_Underage()
+    {
+        // Arrange
+        var user = UserTestData.GenerateValidUser();
+        user.DateOfBirth = DateTime.Today.AddYears(-17); // 17 years old
+
+        // Act
+        var result = _validator.TestValidate(user);
+
+        // Assert
+        result.ShouldHaveValidationErrorFor(u => u.DateOfBirth);
     }
 }

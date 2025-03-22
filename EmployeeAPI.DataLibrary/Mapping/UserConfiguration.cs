@@ -40,13 +40,11 @@ namespace Employes.DataLibrary.Mapping
             builder.Property(u => u.Role)
                 .HasConversion<int>()
                 .IsRequired();
-            
-            
 
             builder.Property(u => u.Email).IsRequired();
             builder.Property(u => u.UserName).IsRequired();
-
-
+            builder.HasIndex(u => u.UserName).IsUnique();
+            
             builder.Property(u => u.DateOfBirth).IsRequired();
             
             builder.HasMany(u => u.PhoneNumbers)

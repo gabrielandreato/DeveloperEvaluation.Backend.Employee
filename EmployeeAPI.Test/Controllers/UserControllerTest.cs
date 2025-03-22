@@ -13,6 +13,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using ModelLibrary.Common;
 using ModelLibrary.Entities;
+using ModelLibrary.Enums;
 using ModelLibrary.Filter;
 using Moq;
 
@@ -139,5 +140,106 @@ namespace EmployesAPI.Test.Controllers
             // Assert
             Assert.Equal(StatusCodes.Status204NoContent, response?.StatusCode);
         }
+
+        [Fact]
+        public async Task CreateUser_ExistingDocumentNumber_ShouldThrowApplicationException()
+        {
+            // Arrange
+
+            var user = UserTestData.GenerateValidUser();
+            user.UserName = "ExistingUser";
+            user.DocumentNumber = "1234567890";
+            user.Email = "existing@example.com";
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+
+            var createUserRequest = new CreateUserRequest
+            {
+                UserName = "NewUser",
+                Password = "SecurePass123!",
+                RePassword = "SecurePass123!",
+                FirstName = "John",
+                LastName = "Doe",
+                Email = "john.doe@example.com",
+                DocumentNumber = "1234567890", // Duplicate Document Number
+                PhoneNumbers = new List<CreatePhoneNumberRequest> { new CreatePhoneNumberRequest() },
+                DateOfBirth = DateTime.Now.AddYears(-25),
+                Role = Role.Employee
+            };
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, "adminuser"),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+            };
+
+            // Act
+            var result = await _controller.CreateUser(createUserRequest);
+            var response = result as ObjectResult;
+
+            // Assert
+            Assert.Equal(StatusCodes.Status400BadRequest, response?.StatusCode);
+            Assert.Equal("Employee with this document number already exists", response!.Value);
+
+        }
+
+        [Fact]
+        public async Task CreateUser_ExistingUserName_ShouldThrowApplicationException()
+        {
+            // Arrange
+            var user = UserTestData.GenerateValidUser();
+
+            user.UserName = "ExistingUser";
+            user.DocumentNumber = "0987654321";
+            user.Email = "existing@example.com";
+
+
+            await _dbContext.Users.AddAsync(user);
+            await _dbContext.SaveChangesAsync();
+
+            var createUserRequest = new CreateUserRequest
+            {
+                UserName = "ExistingUser", // Duplicate UserName
+                Password = "SecurePass123!",
+                RePassword = "SecurePass123!",
+                FirstName = "Jane",
+                LastName = "Smith",
+                Email = "jane.smith@example.com",
+                DocumentNumber = "1122334455",
+                PhoneNumbers = new List<CreatePhoneNumberRequest> { new CreatePhoneNumberRequest() },
+                DateOfBirth = DateTime.Now.AddYears(-30),
+                Role = Role.Employee
+            };
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.Name, "adminuser"),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+            var identity = new ClaimsIdentity(claims, "TestAuthType");
+            var claimsPrincipal = new ClaimsPrincipal(identity);
+
+            _controller.ControllerContext = new ControllerContext
+            {
+                HttpContext = new DefaultHttpContext { User = claimsPrincipal }
+            };
+
+            // Act
+            var result = await _controller.CreateUser(createUserRequest);
+            var response = result as ObjectResult;
+
+            // Assert
+            Assert.Equal(StatusCodes.Status400BadRequest, response?.StatusCode);
+            Assert.Equal("Employee with this userName already exists", response!.Value);
+        }
+        
     }
 }
