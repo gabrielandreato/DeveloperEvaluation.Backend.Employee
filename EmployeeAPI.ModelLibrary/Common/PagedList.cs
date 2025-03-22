@@ -38,7 +38,7 @@ public class PagedList<T>
     /// <summary>
     /// Gets a value indicating whether there is a previous page.
     /// </summary>
-    public bool HasPreviousPage => PageSize > 1;
+    public bool HasPreviousPage => Page > 1;
 
     /// <summary>
     /// Asynchronously creates a paginated and sorted list from a queryable data source.
